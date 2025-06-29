@@ -1,0 +1,36 @@
+{
+  "name": "backend",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "build": "npm run clean && tsc && prisma generate",
+    "build:tsc": "tsc",
+    "build:prisma": "prisma generate",
+    "clean": "rm -rf dist",
+    "start": "wrangler dev --port 8787",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.839.0",
+    "@aws-sdk/s3-request-presigner": "^3.839.0",
+    "@prisma/client": "^5.21.1",
+    "@prisma/extension-accelerate": "^1.2.1",
+    "@suraj-9849/common": "^2.1.2",
+    "@types/express": "^5.0.0",
+    "@types/multer": "^1.4.13",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.1",
+    "hono": "^4.6.5",
+    "multer": "^2.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "@types/bcryptjs": "^2.4.6",
+    "prisma": "^5.21.1",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.22.0"
+  },
+  "packageManager": "pnpm@8.15.4+sha512.0bd3a9be9eb0e9a692676deec00a303ba218ba279d99241475616b398dbaeedd11146f92c2843458f557b1d127e09d4c171e105bdcd6b61002b39685a8016b9e"
+}

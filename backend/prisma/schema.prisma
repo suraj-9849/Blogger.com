@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  username  String   @unique
+  email     String   @unique
+  password  String
+  bio       String?
+  avatar    String?
+  website   String?
+  location  String?
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blogs     Blog[]
+  likes     Like[]
+  comments  Comment[]
+  views     View[]
+  bookmarks Bookmark[]
+  followers Follow[]   @relation("UserFollowers")
+  following Follow[]   @relation("UserFollowing")
+
+  @@map("users")
+}
+
+model Blog {
+  id            Int       @id @default(autoincrement())
+  title         String
+  content       String
+  excerpt       String?
+  thumbnail     String?
+  slug          String    @unique
+  published     Boolean   @default(false)
+  featured      Boolean   @default(false)
+  readTime      Int?
+  viewCount     Int       @default(0)
+  likeCount     Int       @default(0)
+  commentCount  Int       @default(0)
+  bookmarkCount Int       @default(0)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  authorId  Int
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  tags      BlogTag[]
+  likes     Like[]
+  comments  Comment[]
+  views     View[]
+  bookmarks Bookmark[]
+
+  @@map("blogs")
+}
+
+model Tag {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  color       String?
+  createdAt   DateTime @default(now())
+
+  blogs BlogTag[]
+
+  @@map("tags")
+}
+
+model BlogTag {
+  id     Int @id @default(autoincrement())
+  blogId Int
+  tagId  Int
+
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([blogId, tagId])
+  @@map("blog_tags")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  blogId    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@map("likes")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId   Int
+  blogId   Int
+  parentId Int?
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog    Blog      @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model View {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  blogId    Int
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog  @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@map("views")
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  blogId    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@map("bookmarks")
+}
+
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Analytics {
+  id             Int      @id @default(autoincrement())
+  date           DateTime @unique @default(now())
+  totalViews     Int      @default(0)
+  totalLikes     Int      @default(0)
+  totalComments  Int      @default(0)
+  totalUsers     Int      @default(0)
+  totalBlogs     Int      @default(0)
+  totalBookmarks Int      @default(0)
+
+  @@map("analytics")
+}
