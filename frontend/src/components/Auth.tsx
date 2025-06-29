@@ -33,8 +33,7 @@ export const Auth = ({ type }: AuthProps) => {
       
       if (response.ok && json.success) {
         localStorage.setItem("token", json.data.token);
-        // Trigger a page reload to update authentication state
-        window.location.href = "/blogs";
+        navigate("/blogs");
       } else {
         setError(json.error || `${type} failed`);
       }

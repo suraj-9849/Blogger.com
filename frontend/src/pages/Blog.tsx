@@ -81,10 +81,15 @@ function Blog({ isAuthenticated, user }: BlogProps) {
             headers: token ? { 'Authorization': `Bearer ${token}` } : {}
           });
           
-          const commentsResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/blog/${id}/comments`);
-          if (commentsResponse.ok) {
-            const commentsData = await commentsResponse.json();
-            setComments(commentsData.data);
+          setCommentsLoading(true);
+          try {
+            const commentsResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/blog/${id}/comments`);
+            if (commentsResponse.ok) {
+              const commentsData = await commentsResponse.json();
+              setComments(commentsData.data);
+            }
+          } finally {
+            setCommentsLoading(false);
           }
         } else {
           setError(data.error || 'Failed to load blog');
