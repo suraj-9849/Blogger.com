@@ -19,7 +19,12 @@ const app = new Hono<{
 }>();
 
 app.use('/*', cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://yourdomain.com'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://yourdomain.com',
+    'https://blogger-com.vercel.app'
+  ],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
