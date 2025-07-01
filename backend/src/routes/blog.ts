@@ -96,9 +96,66 @@ blogRouter.post("/", authMiddleware, async (c) => {
             name: true,
             username: true
           }
+        },
+        tags: {
+          include: {
+            tag: true
+          }
         }
       }
     });
+
+    // Handle tags if provided
+    if (body.tags && body.tags.length > 0) {
+      for (const tagName of body.tags) {
+        // Find or create tag
+        let tag = await prisma.tag.findUnique({
+          where: { name: tagName.toLowerCase() }
+        });
+
+        if (!tag) {
+          tag = await prisma.tag.create({
+            data: {
+              name: tagName.toLowerCase(),
+              slug: tagName.toLowerCase().replace(/\s+/g, '-')
+            }
+          });
+        }
+
+        // Create blog-tag relationship
+        await prisma.blogTag.create({
+          data: {
+            blogId: blog.id,
+            tagId: tag.id
+          }
+        });
+      }
+
+      // Refetch blog with tags
+      const blogWithTags = await prisma.blog.findUnique({
+        where: { id: blog.id },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              username: true
+            }
+          },
+          tags: {
+            include: {
+              tag: true
+            }
+          }
+        }
+      });
+
+      return c.json({
+        success: true,
+        data: blogWithTags,
+        message: "Blog created successfully"
+      }, 201);
+    }
 
     return c.json({
       success: true,
@@ -168,9 +225,74 @@ blogRouter.put("/", authMiddleware, async (c) => {
             name: true,
             username: true
           }
+        },
+        tags: {
+          include: {
+            tag: true
+          }
         }
       }
     });
+
+    // Handle tags if provided
+    if (body.tags !== undefined) {
+      // Remove existing blog-tag relationships
+      await prisma.blogTag.deleteMany({
+        where: { blogId: body.id }
+      });
+
+      // Add new tags if provided
+      if (body.tags && body.tags.length > 0) {
+        for (const tagName of body.tags) {
+          // Find or create tag
+          let tag = await prisma.tag.findUnique({
+            where: { name: tagName.toLowerCase() }
+          });
+
+          if (!tag) {
+            tag = await prisma.tag.create({
+              data: {
+                name: tagName.toLowerCase(),
+                slug: tagName.toLowerCase().replace(/\s+/g, '-')
+              }
+            });
+          }
+
+          // Create blog-tag relationship
+          await prisma.blogTag.create({
+            data: {
+              blogId: body.id,
+              tagId: tag.id
+            }
+          });
+        }
+      }
+
+      // Refetch blog with tags after updating them
+      const blogWithTags = await prisma.blog.findUnique({
+        where: { id: body.id },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              username: true
+            }
+          },
+          tags: {
+            include: {
+              tag: true
+            }
+          }
+        }
+      });
+
+      return c.json({
+        success: true,
+        data: blogWithTags,
+        message: "Blog updated successfully"
+      });
+    }
 
     return c.json({
       success: true,
@@ -247,6 +369,11 @@ blogRouter.get("/", optionalAuthMiddleware, async (c) => {
               name: true,
               username: true
             }
+          },
+          tags: {
+            include: {
+              tag: true
+            }
           }
         },
         skip,
@@ -294,6 +421,11 @@ blogRouter.get("/trending", async (c) => {
             id: true,
             name: true,
             username: true
+          }
+        },
+        tags: {
+          include: {
+            tag: true
           }
         }
       },
@@ -349,6 +481,11 @@ blogRouter.get("/:id", optionalAuthMiddleware, async (c) => {
             id: true,
             name: true,
             username: true
+          }
+        },
+        tags: {
+          include: {
+            tag: true
           }
         }
       }
@@ -449,6 +586,11 @@ blogRouter.get("/my/blogs", authMiddleware, async (c) => {
               name: true,
               username: true
             }
+          },
+          tags: {
+            include: {
+              tag: true
+            }
           }
         },
         skip,
@@ -507,6 +649,11 @@ blogRouter.get("/search/:query", async (c) => {
               id: true,
               name: true,
               username: true
+            }
+          },
+          tags: {
+            include: {
+              tag: true
             }
           }
         },
