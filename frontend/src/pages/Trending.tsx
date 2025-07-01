@@ -21,6 +21,15 @@ interface BlogPost {
   bookmarkCount: number;
   createdAt: string;
   updatedAt: string;
+  tags?: {
+    id: number;
+    tag: {
+      id: number;
+      name: string;
+      slug: string;
+      color?: string;
+    };
+  }[];
 }
 
 interface TrendingProps {
@@ -66,7 +75,7 @@ function Trending({ isAuthenticated, user }: TrendingProps) {
 
   if (loading) {
     return (
-      <Layout isAuthenticated={isAuthenticated} user={user}>
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-300 rounded w-48 mb-4"></div>
@@ -91,7 +100,7 @@ function Trending({ isAuthenticated, user }: TrendingProps) {
 
   if (error) {
     return (
-      <Layout isAuthenticated={isAuthenticated} user={user}>
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
             <div className="text-red-500 text-lg mb-4">{error}</div>
@@ -108,7 +117,7 @@ function Trending({ isAuthenticated, user }: TrendingProps) {
   }
 
   return (
-    <Layout isAuthenticated={isAuthenticated} user={user}>
+    <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Trending Stories</h1>

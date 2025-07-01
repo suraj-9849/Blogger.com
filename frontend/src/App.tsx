@@ -8,6 +8,8 @@ import Blogs from './pages/Blogs';
 import Publish from './pages/Publish';
 import Trending from './pages/Trending';
 import { Bookmarks } from './pages/Bookmarks';
+import Profile from './pages/Profile';
+import MyStories from './pages/MyStories';
 import { Layout } from './components/Layout';
 
 function App() {
@@ -32,10 +34,12 @@ function App() {
         <Route path="/publish" element={<Publish isAuthenticated={isAuthenticated} user={user} />} />
         <Route path="/trending" element={<Trending isAuthenticated={isAuthenticated} user={user} />} />
         <Route path="/bookmarks" element={
-          <Layout isAuthenticated={isAuthenticated} user={user}>
+          <Layout>
             <Bookmarks />
           </Layout>
         } />
+        <Route path="/profile" element={<Profile isAuthenticated={isAuthenticated} user={user} />} />
+        <Route path="/my-stories" element={<MyStories isAuthenticated={isAuthenticated} user={user} />} />
       </Routes>
     </BrowserRouter>
   );

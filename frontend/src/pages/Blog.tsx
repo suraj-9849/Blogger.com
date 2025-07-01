@@ -21,6 +21,15 @@ interface BlogData {
   commentCount: number;
   createdAt: string;
   updatedAt: string;
+  tags?: {
+    id: number;
+    tag: {
+      id: number;
+      name: string;
+      slug: string;
+      color?: string;
+    };
+  }[];
 }
 
 interface BlogProps {
@@ -334,7 +343,7 @@ function Blog({ isAuthenticated, user }: BlogProps) {
 
   if (loading) {
     return (
-      <Layout isAuthenticated={isAuthenticated} user={user}>
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
@@ -355,7 +364,7 @@ function Blog({ isAuthenticated, user }: BlogProps) {
 
   if (error || !blog) {
     return (
-      <Layout isAuthenticated={isAuthenticated} user={user}>
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
             <div className="text-red-500 text-lg">{error || 'Blog not found'}</div>
@@ -372,12 +381,27 @@ function Blog({ isAuthenticated, user }: BlogProps) {
   }
 
   return (
-    <Layout isAuthenticated={isAuthenticated} user={user}>
+    <Layout>
       <article className="max-w-4xl mx-auto px-4 py-8">
         <header className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
             {blog.title}
           </h1>
+          
+          {/* Tags */}
+          {blog.tags && blog.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {blog.tags.map(blogTag => (
+                <span
+                  key={blogTag.tag.id}
+                  className="text-sm px-3 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
+                  style={blogTag.tag.color ? { backgroundColor: `${blogTag.tag.color}20`, color: blogTag.tag.color } : undefined}
+                >
+                  {blogTag.tag.name}
+                </span>
+              ))}
+            </div>
+          )}
           
           <div className="flex items-center space-x-4 mb-6">
             <div className="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center text-lg font-medium">

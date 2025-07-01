@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignUpInput, signInInput } from '@suraj-9849/common';
+import { useAuth } from '../hooks/useAuth';
 
 interface AuthProps {
   type: 'signup' | 'signin';
@@ -8,6 +9,7 @@ interface AuthProps {
 
 export const Auth = ({ type }: AuthProps) => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [postInputs, setPostInputs] = useState<SignUpInput | signInInput>({
     email: "",
     password: "",
@@ -32,8 +34,27 @@ export const Auth = ({ type }: AuthProps) => {
       const json = await response.json();
       
       if (response.ok && json.success) {
-        localStorage.setItem("token", json.data.token);
-        navigate("/blogs");
+        const token = json.data.token;
+        
+        // Fetch user data to update the auth state
+        const userResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          if (userData.success) {
+            // Update authentication state using the login function from useAuth
+            login(token, userData.data);
+            navigate("/blogs");
+          } else {
+            setError("Failed to fetch user data");
+          }
+        } else {
+          setError("Failed to fetch user data");
+        }
       } else {
         setError(json.error || `${type} failed`);
       }

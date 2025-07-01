@@ -23,9 +23,12 @@ interface BlogPost {
   updatedAt: string;
   tags?: {
     id: number;
-    name: string;
-    slug: string;
-    color?: string;
+    tag: {
+      id: number;
+      name: string;
+      slug: string;
+      color?: string;
+    };
   }[];
 }
 

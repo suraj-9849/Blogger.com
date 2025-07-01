@@ -24,9 +24,12 @@ interface BlogPost {
   updatedAt: string;
   tags?: {
     id: number;
-    name: string;
-    slug: string;
-    color?: string;
+    tag: {
+      id: number;
+      name: string;
+      slug: string;
+      color?: string;
+    };
   }[];
 }
 
@@ -114,14 +117,14 @@ export const BlogCard = ({ blog }: BlogCardProps) => {
             </h2>
             {blog.tags && blog.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
-                {blog.tags.map(tag => (
+                {blog.tags.map(blogTag => (
                   <Link
-                    key={tag.id}
-                    to={`/tag/${tag.slug}`}
+                    key={blogTag.tag.id}
+                    to={`/tag/${blogTag.tag.slug}`}
                     className="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    style={tag.color ? { backgroundColor: `${tag.color}20`, color: tag.color } : undefined}
+                    style={blogTag.tag.color ? { backgroundColor: `${blogTag.tag.color}20`, color: blogTag.tag.color } : undefined}
                   >
-                    {tag.name}
+                    {blogTag.tag.name}
                   </Link>
                 ))}
               </div>

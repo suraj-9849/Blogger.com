@@ -1,6 +1,7 @@
 import  { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import { BlogCard } from '../components/BlogCard';
+import { Search } from '../components/Search';
 
 interface BlogPost {
   id: number;
@@ -21,6 +22,15 @@ interface BlogPost {
   bookmarkCount: number;
   createdAt: string;
   updatedAt: string;
+  tags?: {
+    id: number;
+    tag: {
+      id: number;
+      name: string;
+      slug: string;
+      color?: string;
+    };
+  }[];
 }
 
 interface BlogsProps {
@@ -66,7 +76,7 @@ function Blogs({ isAuthenticated, user }: BlogsProps) {
 
   if (loading) {
     return (
-      <Layout isAuthenticated={isAuthenticated} user={user}>
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="space-y-8">
@@ -90,7 +100,7 @@ function Blogs({ isAuthenticated, user }: BlogsProps) {
 
   if (error) {
     return (
-      <Layout isAuthenticated={isAuthenticated} user={user}>
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
             <div className="text-red-500 text-lg mb-4">{error}</div>
@@ -107,11 +117,16 @@ function Blogs({ isAuthenticated, user }: BlogsProps) {
   }
 
   return (
-    <Layout isAuthenticated={isAuthenticated} user={user}>
+    <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Latest Stories</h1>
-          <p className="text-gray-600">Discover the latest articles from our community</p>
+          <p className="text-gray-600 mb-6">Discover the latest articles from our community</p>
+          
+          {/* Search Section */}
+          <div className="max-w-2xl">
+            <Search />
+          </div>
         </div>
           
         <div className="space-y-0">

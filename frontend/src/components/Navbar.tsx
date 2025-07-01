@@ -1,22 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
-interface NavbarProps {
-  isAuthenticated?: boolean;
-  user?: {
-    id: number;
-    name?: string;
-    username: string;
-    email: string;
-  } | null;
-}
-
-export const Navbar = ({ isAuthenticated = false, user }: NavbarProps) => {
+export const Navbar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/');
   };
 
