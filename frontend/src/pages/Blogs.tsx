@@ -43,7 +43,7 @@ interface BlogsProps {
   } | null;
 }
 
-function Blogs({ isAuthenticated, user }: BlogsProps) {
+function Blogs(_: BlogsProps) {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

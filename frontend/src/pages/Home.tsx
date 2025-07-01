@@ -12,7 +12,7 @@ interface HomeProps {
   } | null;
 }
 
-function Home({ isAuthenticated, user }: HomeProps) {
+function Home({ isAuthenticated }: HomeProps) {
   return (
     <Layout>
       <section className="relative overflow-hidden bg-white">

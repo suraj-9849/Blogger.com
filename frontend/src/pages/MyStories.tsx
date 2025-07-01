@@ -42,11 +42,11 @@ interface BlogPost {
   }[];
 }
 
-function MyStories({ isAuthenticated, user }: MyStoriesProps) {
+function MyStories({ isAuthenticated }: MyStoriesProps) {
   const navigate = useNavigate();
   const [stories, setStories] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
   const [filter, setFilter] = useState<'all' | 'published' | 'drafts'>('all');
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
 

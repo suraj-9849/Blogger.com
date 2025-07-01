@@ -42,7 +42,7 @@ interface TrendingProps {
   } | null;
 }
 
-function Trending({ isAuthenticated, user }: TrendingProps) {
+function Trending(_: TrendingProps) {
   const [trendingBlogs, setTrendingBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -12,7 +12,7 @@ interface PublishProps {
   } | null;
 }
 
-function Publish({ isAuthenticated, user }: PublishProps) {
+function Publish(_: PublishProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);

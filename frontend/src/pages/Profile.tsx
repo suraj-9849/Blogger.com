@@ -59,7 +59,7 @@ interface BlogPost {
   }[];
 }
 
-function Profile({ isAuthenticated, user }: ProfileProps) {
+function Profile(_: ProfileProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);

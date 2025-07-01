@@ -21,7 +21,7 @@ export const Search = () => {
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<number>();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
