@@ -11,8 +11,23 @@
   },
   "dependencies": {
     "@suraj-9849/common": "^2.1.2",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tiptap/extension-code-block-lowlight": "^2.23.1",
+    "@tiptap/extension-image": "^2.23.1",
+    "@tiptap/extension-link": "^2.23.1",
+    "@tiptap/extension-placeholder": "^2.23.1",
+    "@tiptap/extension-table": "^2.23.1",
+    "@tiptap/extension-table-cell": "^2.23.1",
+    "@tiptap/extension-table-header": "^2.23.1",
+    "@tiptap/extension-table-row": "^2.23.1",
+    "@tiptap/extension-typography": "^2.23.1",
+    "@tiptap/react": "^2.23.1",
+    "@tiptap/starter-kit": "^2.23.1",
+    "highlight.js": "^11.11.1",
+    "lowlight": "^3.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hotkeys-hook": "^5.1.0",
     "react-router-dom": "^6.30.1"
   },
   "devDependencies": {
