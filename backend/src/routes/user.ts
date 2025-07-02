@@ -126,22 +126,22 @@ userRouter.post('/signup', async (c) => {
     try {
       const body = await c.req.json();
         
-        // Manual validation for username-based signin
-        if (!body.username || !body.password) {
+        // Use email for signin as per the schema
+        if (!body.email || !body.password) {
             return c.json({ 
                 success: false, 
-                error: "Username and password are required" 
+                error: "Email and password are required" 
             }, 400);
         }
 
-        const { username, password } = body;
+        const { email, password } = body;
 
         // Create Prisma client with environment variable
         const prisma = createPrismaClient(c.env.DATABASE_URL);
 
-        // Find user
+        // Find user by email
         const user = await prisma.user.findUnique({
-            where: { username },
+            where: { email },
             select: {
                 id: true,
                 name: true,
