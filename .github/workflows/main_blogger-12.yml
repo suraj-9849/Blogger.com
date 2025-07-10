@@ -51,12 +51,35 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          cd frontend
-          cp web.config dist/
-          cp startup.sh dist/
-          chmod +x dist/startup.sh
-          cd dist
-          zip -r ../../release.zip ./*
+          # Create a temporary directory for packaging
+          mkdir -p deploy_package
+          
+          # Copy build output
+          cp -r frontend/dist/* deploy_package/
+          
+          # Copy configuration files
+          cp frontend/web.config deploy_package/
+          cp frontend/startup.sh deploy_package/
+          chmod +x deploy_package/startup.sh
+          
+          # Create a minimal package.json for deployment
+          echo '{
+            "name": "blogger-frontend",
+            "version": "1.0.0",
+            "engines": {
+              "node": ">=20.0.0"
+            },
+            "scripts": {
+              "start": "./startup.sh"
+            },
+            "dependencies": {
+              "serve": "^14.2.1"
+            }
+          }' > deploy_package/package.json
+          
+          # Create zip from the deploy package
+          cd deploy_package
+          zip -r ../release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
