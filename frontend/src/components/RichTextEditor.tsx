@@ -56,11 +56,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        codeBlock: false, 
+        codeBlock: false,
       }),
       CodeBlockLowlight.configure({
         lowlight,
         defaultLanguage: 'javascript',
+        HTMLAttributes: {
+          class: 'not-prose rounded-lg bg-gray-900 p-4 my-4 overflow-x-auto',
+          spellcheck: 'false',
+          'data-type': 'codeBlock',
+        },
+        languageClassPrefix: 'language-',
+        exitOnTripleEnter: true,
+        exitOnArrowDown: true,
       }),
       Placeholder.configure({
         placeholder,
@@ -77,6 +85,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg shadow-lg my-4',
         },
+        allowBase64: true,
       }),
       Table.configure({
         resizable: true,
@@ -103,6 +112,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] px-6 py-4',
+        spellcheck: 'false',
       },
       handlePaste: (_, event) => {
         const clipboardData = event.clipboardData?.getData('text/plain') || '';
@@ -115,6 +125,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           /^(#include|int main|std::)/m,
           /^(\{|\[|\<\w+\>)/m,
           /^(SELECT|INSERT|UPDATE|DELETE|CREATE)/im,
+          /^(```[\w]*\n[\s\S]*?\n```)/m, // Detect markdown code blocks
         ];
         
         const isCode = codePatterns.some(pattern => pattern.test(clipboardData));
@@ -122,19 +133,33 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         if (isCode && clipboardData.split('\n').length > 1) {
           event.preventDefault();
           
-          const language = detectLanguage(clipboardData);
+          // Remove markdown code block syntax if present
+          let cleanCode = clipboardData.replace(/^```[\w]*\n/, '').replace(/\n```$/, '');
+          
+          const language = detectLanguage(cleanCode);
           editor?.chain().focus().insertContent({
             type: 'codeBlock',
             attrs: { language },
             content: [{
               type: 'text',
-              text: clipboardData,
+              text: cleanCode,
             }],
           }).run();
           
           return true;
         }
         
+        return false;
+      },
+      handleDrop: (view, event, slice, moved) => {
+        if (!moved && event.dataTransfer?.files.length) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.startsWith('image/') && onImageUpload) {
+            event.preventDefault();
+            handleImageUpload(file);
+            return true;
+          }
+        }
         return false;
       },
     },
@@ -159,12 +184,33 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     if (onImageUpload) {
       try {
         const url = await onImageUpload(file);
-        editor?.chain().focus().setImage({ src: url }).run();
+        if (url && editor) {
+          editor.chain().focus().setImage({ src: url }).run();
+        }
       } catch (error) {
         console.error('Failed to upload image:', error);
+        // You might want to show a toast or error message here
       }
     }
   }, [editor, onImageUpload]);
+
+  // Add file input for image upload
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+    // Reset the input
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
 
   // Keyboard shortcuts
   useHotkeys('ctrl+b,cmd+b', (e) => {
@@ -179,13 +225,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   useHotkeys('ctrl+k,cmd+k', (e) => {
     e.preventDefault();
-    const url = window.prompt('Enter URL:');
+    const url = window.prompt('Enter the URL:');
     if (url) {
       editor?.chain().focus().setLink({ href: url }).run();
     }
   });
 
-  useHotkeys('ctrl+shift+c,cmd+shift+c', (e) => {
+  useHotkeys('ctrl+alt+c,cmd+alt+c', (e) => {
     e.preventDefault();
     editor?.chain().focus().toggleCodeBlock().run();
   });
@@ -205,178 +251,56 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-      {/* Toolbar */}
-      <div className="border-b border-gray-200 p-3 bg-gray-50">
-        <div className="flex flex-wrap items-center gap-1">
-          {/* Text Formatting */}
-          <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
-            <button
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('bold') ? 'bg-gray-300' : ''
-              }`}
-              title="Bold (Ctrl+B)"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('italic') ? 'bg-gray-300' : ''
-              }`}
-              title="Italic (Ctrl+I)"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 4l4 16" />
-              </svg>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('strike') ? 'bg-gray-300' : ''
-              }`}
-              title="Strikethrough"
-            >
-              <span className="text-sm font-medium line-through">S</span>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleCode().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('code') ? 'bg-gray-300' : ''
-              }`}
-              title="Inline Code"
-            >
-              <span className="text-sm font-mono font-medium">{`</>`}</span>
-            </button>
-          </div>
-
-          {/* Headings */}
-          <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
-            <button
-              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('heading', { level: 1 }) ? 'bg-gray-300' : ''
-              }`}
-              title="Heading 1"
-            >
-              <span className="text-sm font-bold">H1</span>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('heading', { level: 2 }) ? 'bg-gray-300' : ''
-              }`}
-              title="Heading 2"
-            >
-              <span className="text-sm font-bold">H2</span>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('heading', { level: 3 }) ? 'bg-gray-300' : ''
-              }`}
-              title="Heading 3"
-            >
-              <span className="text-sm font-bold">H3</span>
-            </button>
-          </div>
-
-          {/* Lists */}
-          <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
-            <button
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('bulletList') ? 'bg-gray-300' : ''
-              }`}
-              title="Bullet List"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('orderedList') ? 'bg-gray-300' : ''
-              }`}
-              title="Numbered List"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Special Elements */}
-          <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
-            <button
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('codeBlock') ? 'bg-gray-300' : ''
-              }`}
-              title="Code Block (Ctrl+Shift+C)"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('blockquote') ? 'bg-gray-300' : ''
-              }`}
-              title="Quote"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Link and Media */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => {
-                const url = window.prompt('Enter URL:');
-                if (url) {
-                  editor.chain().focus().setLink({ href: url }).run();
-                }
-              }}
-              className={`p-2 rounded hover:bg-gray-200 ${
-                editor.isActive('link') ? 'bg-gray-300' : ''
-              }`}
-              title="Add Link (Ctrl+K)"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-            </button>
-            
-            <label className="p-2 rounded hover:bg-gray-200 cursor-pointer" title="Add Image">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleImageUpload(file);
-                  }
-                }}
-              />
-            </label>
-          </div>
-        </div>
+    <div className="relative">
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileChange}
+      />
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-2 flex gap-2">
+        <button
+          onClick={() => editor?.chain().focus().toggleBold().run()}
+          className={`p-2 rounded hover:bg-gray-100 ${editor?.isActive('bold') ? 'bg-gray-100' : ''}`}
+          title="Bold (Ctrl+B)"
+        >
+          <strong>B</strong>
+        </button>
+        <button
+          onClick={() => editor?.chain().focus().toggleItalic().run()}
+          className={`p-2 rounded hover:bg-gray-100 ${editor?.isActive('italic') ? 'bg-gray-100' : ''}`}
+          title="Italic (Ctrl+I)"
+        >
+          <em>I</em>
+        </button>
+        <button
+          onClick={() => {
+            const url = window.prompt('Enter URL:');
+            if (url) {
+              editor?.chain().focus().setLink({ href: url }).run();
+            }
+          }}
+          className={`p-2 rounded hover:bg-gray-100 ${editor?.isActive('link') ? 'bg-gray-100' : ''}`}
+          title="Add Link (Ctrl+K)"
+        >
+          🔗
+        </button>
+        <button
+          onClick={handleImageClick}
+          className="p-2 rounded hover:bg-gray-100"
+          title="Add Image"
+        >
+          📷
+        </button>
+        <button
+          onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+          className={`p-2 rounded hover:bg-gray-100 ${editor?.isActive('codeBlock') ? 'bg-gray-100' : ''}`}
+          title="Code Block (Ctrl+Shift+C)"
+        >
+          {'</>'}
+        </button>
       </div>
-
-      {/* Editor */}
       <EditorContent editor={editor} />
       
       {/* Footer with shortcuts */}

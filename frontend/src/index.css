@@ -125,6 +125,9 @@ textarea:focus {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
+  white-space: pre;
+  word-wrap: normal;
+  tab-size: 2;
 }
 
 .ProseMirror pre code {
@@ -132,6 +135,48 @@ textarea:focus {
   color: inherit;
   font-size: inherit;
   padding: 0;
+  white-space: inherit;
+  display: block;
+  overflow-x: auto;
+}
+
+/* Code block language tag */
+.ProseMirror pre[data-language]::before {
+  content: attr(data-language);
+  display: block;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Ensure code blocks maintain formatting */
+.ProseMirror [data-type="codeBlock"] {
+  white-space: pre;
+  font-family: monospace;
+}
+
+/* Override Tailwind prose styles for code blocks */
+.prose pre {
+  margin: 0;
+  padding: 1rem;
+  background-color: #1e293b;
+  color: #e2e8f0;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  border-width: 0;
+  border-radius: 0;
+  padding: 0;
+  font-weight: 400;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
 }
 
 /* Syntax highlighting colors */
@@ -378,4 +423,139 @@ textarea:focus {
   border: 2px solid #3b82f6;
   border-radius: 4px;
   pointer-events: none;
+}
+
+/* Fix code block line breaks */
+.ProseMirror pre br {
+  display: block;
+  content: "";
+  margin-top: 0.5em;
+}
+
+/* Ensure code blocks don't get collapsed */
+.ProseMirror pre * {
+  white-space: pre;
+}
+
+/* Add a subtle border and better spacing */
+.ProseMirror pre {
+  border: 1px solid #2d3748;
+  margin: 1.5em 0;
+}
+
+/* Improve code block selection */
+.ProseMirror pre ::selection {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Blog Content Styles */
+.blog-content {
+  @apply prose prose-lg max-w-none;
+}
+
+.blog-content pre {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  margin: 1.5rem 0 !important;
+  overflow-x: auto !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  white-space: pre !important;
+  word-wrap: normal !important;
+  tab-size: 2 !important;
+  border: 1px solid #2d3748 !important;
+}
+
+.blog-content pre code {
+  background: none !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  padding: 0 !important;
+  white-space: pre !important;
+  word-wrap: normal !important;
+  font-family: inherit !important;
+  line-height: inherit !important;
+  tab-size: 2 !important;
+}
+
+/* Syntax highlighting for blog content */
+.blog-content .hljs-keyword,
+.blog-content .hljs-selector-tag,
+.blog-content .hljs-subst {
+  color: #c084fc !important;
+  font-weight: bold !important;
+}
+
+.blog-content .hljs-string,
+.blog-content .hljs-doctag {
+  color: #34d399 !important;
+}
+
+.blog-content .hljs-title,
+.blog-content .hljs-section,
+.blog-content .hljs-selector-id {
+  color: #60a5fa !important;
+  font-weight: bold !important;
+}
+
+.blog-content .hljs-comment,
+.blog-content .hljs-quote {
+  color: #64748b !important;
+  font-style: italic !important;
+}
+
+.blog-content .hljs-number,
+.blog-content .hljs-literal,
+.blog-content .hljs-variable,
+.blog-content .hljs-template-variable,
+.blog-content .hljs-tag .hljs-attr {
+  color: #fbbf24 !important;
+}
+
+.blog-content .hljs-type,
+.blog-content .hljs-class .hljs-title {
+  color: #fbbf24 !important;
+  font-weight: bold !important;
+}
+
+.blog-content .hljs-tag,
+.blog-content .hljs-name,
+.blog-content .hljs-attribute {
+  color: #f87171 !important;
+  font-weight: normal !important;
+}
+
+.blog-content .hljs-regexp,
+.blog-content .hljs-link {
+  color: #34d399 !important;
+}
+
+.blog-content .hljs-symbol,
+.blog-content .hljs-bullet {
+  color: #a78bfa !important;
+}
+
+.blog-content .hljs-built_in,
+.blog-content .hljs-builtin-name {
+  color: #06b6d4 !important;
+}
+
+/* Fix line breaks in code blocks */
+.blog-content pre br {
+  display: block !important;
+  content: "" !important;
+  margin-top: 0.5em !important;
+}
+
+/* Ensure code blocks don't get collapsed */
+.blog-content pre * {
+  white-space: pre !important;
+}
+
+/* Improve code block selection */
+.blog-content pre ::selection {
+  background: rgba(255, 255, 255, 0.2) !important;
 }

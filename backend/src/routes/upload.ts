@@ -69,6 +69,7 @@ uploadRouter.post("/image", authMiddleware, async (c) => {
         error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed."
       }, 400);
     }
+
     if (file.size > S3_CONFIG.MAX_FILE_SIZE) {
       return c.json({
         success: false,
@@ -79,29 +80,29 @@ uploadRouter.post("/image", authMiddleware, async (c) => {
     const s3Client = createS3Client(
       c.env.AWS_ACCESS_KEY_ID,
       c.env.AWS_SECRET_ACCESS_KEY,
-      c.env.AWS_REGION || S3_CONFIG.REGION,
+      c.env.AWS_REGION,
       c.env.AWS_ENDPOINT
     ) as S3Client;
 
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8);
-    const fileExtension = file.name.split('.').pop();
+    const fileExtension = file.type.split('/')[1];
     const fileName = `blog-images/${userId}/${timestamp}-${randomString}.${fileExtension}`;
 
     const buffer = await file.arrayBuffer();
 
     const uploadCommand = new PutObjectCommand({
-      Bucket: c.env.AWS_BUCKET_NAME || S3_CONFIG.BUCKET_NAME,
+      Bucket: c.env.AWS_BUCKET_NAME,
       Key: fileName,
-      Body: new Uint8Array(buffer),
+      Body: buffer,
       ContentType: file.type,
       ContentDisposition: 'inline',
-      CacheControl: 'max-age=31536000',
+      CacheControl: 'public, max-age=31536000',
     });
 
     await s3Client.send(uploadCommand);
 
-    const bucketName = c.env.AWS_BUCKET_NAME || S3_CONFIG.BUCKET_NAME;
+    // Use the R2_PUBLIC_URL from environment variables
     const publicUrl = `${c.env.R2_PUBLIC_URL}/${fileName}`;
 
     return c.json({
@@ -119,7 +120,8 @@ uploadRouter.post("/image", authMiddleware, async (c) => {
     console.error("Image upload error:", error);
     return c.json({
       success: false,
-      error: "Failed to upload image"
+      error: "Failed to upload image",
+      details: error.message
     }, 500);
   }
 });
@@ -144,17 +146,15 @@ uploadRouter.delete("/image", authMiddleware, async (c) => {
       }, 403);
     }
 
-    // Create S3 client
     const s3Client = createS3Client(
       c.env.AWS_ACCESS_KEY_ID,
       c.env.AWS_SECRET_ACCESS_KEY,
-      c.env.AWS_REGION || S3_CONFIG.REGION,
+      c.env.AWS_REGION,
       c.env.AWS_ENDPOINT
     ) as S3Client;
 
-    // Delete from S3
     const deleteCommand = new DeleteObjectCommand({
-      Bucket: c.env.AWS_BUCKET_NAME || S3_CONFIG.BUCKET_NAME,
+      Bucket: c.env.AWS_BUCKET_NAME,
       Key: fileName,
     });
 

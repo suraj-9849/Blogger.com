@@ -211,32 +211,74 @@ function Publish(_: PublishProps) {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/upload/image`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
-        body: formData,
+        body: formData
       });
 
-      if (response.ok) {
-        const json = await response.json();
-        if (json.success && json.data && json.data.url) {
-          setBlogInputs({
-            ...blogInputs,
-            thumbnail: json.data.url
-          });
-        } else {
-          setError("Failed to get thumbnail URL after upload");
-        }
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setBlogInputs(prev => ({
+          ...prev,
+          thumbnail: data.data.url
+        }));
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to upload thumbnail");
+        console.error('Upload error:', data);
+        setError(data.error || "Failed to upload thumbnail");
       }
     } catch (e) {
-      setError("Something went wrong uploading the thumbnail.");
+      console.error('Upload error:', e);
+      setError("Failed to upload thumbnail. Please try again.");
     } finally {
       setThumbnailUploading(false);
     }
   };
 
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.");
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("Image too large. Maximum size is 5MB.");
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/signin");
+      throw new Error("Not authenticated");
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/upload/image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data.url) {
+        return data.data.url;
+      } else {
+        throw new Error('Failed to get image URL');
+      }
+    } catch (error: any) {
+      console.error('Image upload error:', error);
+      throw new Error(error.message || 'Failed to upload image');
+    }
+  };
 
 
   const renderPreview = () => {
