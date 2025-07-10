@@ -35,12 +35,6 @@ interface BlogData {
 
 interface BlogProps {
   isAuthenticated?: boolean;
-  user?: {
-    id: number;
-    name?: string;
-    username: string;
-    email: string;
-  } | null;
 }
 
 function Blog({ isAuthenticated }: BlogProps) {

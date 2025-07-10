@@ -429,12 +429,7 @@ function Publish(_: PublishProps) {
             ) : (
               <RichTextEditor
                 content={blogInputs.content}
-                onChange={(content) => {
-                  setBlogInputs({
-                    ...blogInputs,
-                    content: content
-                  });
-                }}
+                onChange={(content) => setBlogInputs({ ...blogInputs, content })}
                 placeholder="Tell your story..."
                 onImageUpload={handleImageUpload}
               />

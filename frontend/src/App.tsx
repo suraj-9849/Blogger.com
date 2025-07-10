@@ -23,23 +23,19 @@ function App() {
     );
   }
 
-  return (    
+  return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home isAuthenticated={isAuthenticated} user={user} />} />
+        <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/blog/:id" element={<Blog isAuthenticated={isAuthenticated} user={user} />} />
-        <Route path="/blogs" element={<Blogs isAuthenticated={isAuthenticated} user={user} />} />
-        <Route path="/publish" element={<Publish isAuthenticated={isAuthenticated} user={user} />} />
-        <Route path="/trending" element={<Trending isAuthenticated={isAuthenticated} user={user} />} />
-        <Route path="/bookmarks" element={
-          <Layout>
-            <Bookmarks />
-          </Layout>
-        } />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blog/:id" element={<Blog isAuthenticated={isAuthenticated} />} />
+        <Route path="/trending" element={<Trending />} />
+        <Route path="/bookmarks" element={<Layout><Bookmarks /></Layout>} />
+        <Route path="/mystories" element={<MyStories isAuthenticated={isAuthenticated} user={user} />} />
         <Route path="/profile" element={<Profile isAuthenticated={isAuthenticated} user={user} />} />
-        <Route path="/my-stories" element={<MyStories isAuthenticated={isAuthenticated} user={user} />} />
+        <Route path="/publish" element={<Publish isAuthenticated={isAuthenticated} user={user} />} />
       </Routes>
     </BrowserRouter>
   );
