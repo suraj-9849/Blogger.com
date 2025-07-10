@@ -46,12 +46,16 @@ jobs:
       - name: Install dependencies and build
         working-directory: ./frontend
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
           pnpm run build
 
-      - name: Zip artifact for deployment
+      - name: Prepare deployment package
         run: |
-          cd frontend/dist
+          cd frontend
+          cp web.config dist/
+          cp startup.sh dist/
+          chmod +x dist/startup.sh
+          cd dist
           zip -r ../../release.zip ./*
 
       - name: Upload artifact for deployment job
@@ -90,4 +94,5 @@ jobs:
           app-name: 'blogger-12'
           slot-name: 'Production'
           package: .
+          startup-command: './startup.sh'
           
