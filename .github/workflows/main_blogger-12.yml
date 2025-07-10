@@ -11,6 +11,10 @@ on:
       - 'frontend/**'  # Only trigger on frontend changes
   workflow_dispatch:
 
+env:
+  VITE_BACKEND_URL: 'https://blogger-9849.surajlohit42.workers.dev'
+  VITE_API_URL: 'https://blogger-9849.surajlohit42.workers.dev'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,6 +46,12 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Create env file
+        run: |
+          cd frontend
+          echo "VITE_BACKEND_URL=${{ env.VITE_BACKEND_URL }}" > .env.production
+          echo "VITE_API_URL=${{ env.VITE_API_URL }}" >> .env.production
 
       - name: Install dependencies and build
         working-directory: ./frontend

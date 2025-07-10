@@ -22,8 +22,9 @@ app.use('/*', cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://yourdomain.com',
-    'https://blogger-com.vercel.app'
+    'https://blogger-com.vercel.app',
+    'https://blogger-12-g6evdga4c9frd3ce.southindia-01.azurewebsites.net',
+    'https://blogger-9849.surajlohit42.workers.dev'
   ],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
