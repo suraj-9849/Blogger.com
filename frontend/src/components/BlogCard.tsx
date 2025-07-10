@@ -120,7 +120,7 @@ export const BlogCard = ({ blog }: BlogCardProps) => {
                 {blog.tags.map(blogTag => (
                   <Link
                     key={blogTag.tag.id}
-                    to={`/tag/${blogTag.tag.slug}`}
+                    to={`/tag/${encodeURIComponent(blogTag.tag.name)}`}
                     className="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
                     style={blogTag.tag.color ? { backgroundColor: `${blogTag.tag.color}20`, color: blogTag.tag.color } : undefined}
                   >

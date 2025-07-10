@@ -11,6 +11,7 @@ import { Bookmarks } from './pages/Bookmarks';
 import Profile from './pages/Profile';
 import MyStories from './pages/MyStories';
 import { Layout } from './components/Layout';
+import Tag from './pages/Tag';
 
 function App() {
   const { isAuthenticated, user, loading } = useAuth();
@@ -36,6 +37,7 @@ function App() {
         <Route path="/mystories" element={<MyStories isAuthenticated={isAuthenticated} user={user} />} />
         <Route path="/profile" element={<Profile isAuthenticated={isAuthenticated} user={user} />} />
         <Route path="/publish" element={<Publish isAuthenticated={isAuthenticated} user={user} />} />
+        <Route path="/tag/:tagName" element={<Layout><Tag /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
