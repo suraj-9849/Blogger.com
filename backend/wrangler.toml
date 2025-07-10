@@ -3,13 +3,14 @@ main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
 [vars]
-DATABASE_URL = ""
-JWT_SECRET = ""
-AWS_REGION = ""
-AWS_BUCKET_NAME = ""
+# Non-sensitive configuration only
+AWS_REGION="auto"
+AWS_BUCKET_NAME="blogger"
+AWS_ENDPOINT="https://1fb4e203bb44690e975dd68809cb9c93.r2.cloudflarestorage.com"
+R2_PUBLIC_URL="https://pub-4960f18fba834252a9a3562a3fc94bef.r2.dev"
 
-# AWS_ACCESS_KEY_ID
-# AWS_SECRET_ACCESS_KEY
-
-
-
+# Sensitive variables should be set as secrets via:
+# wrangler secret put DATABASE_URL
+# wrangler secret put JWT_SECRET  
+# wrangler secret put AWS_ACCESS_KEY_ID
+# wrangler secret put AWS_SECRET_ACCESS_KEY

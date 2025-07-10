@@ -10,6 +10,8 @@ interface CustomBindings {
     AWS_REGION: string;
     AWS_BUCKET_NAME: string;
     JWT_SECRET: string;
+    AWS_ENDPOINT: string;
+    R2_PUBLIC_URL: string;
   };
   Variables: {
     userId: number;
@@ -21,11 +23,11 @@ export const uploadRouter = new Hono<CustomBindings>();
 const authMiddleware = async (c: any, next: any) => {
   const authHeader = c.req.header("authorization") || "";
   const token = authHeader.split(" ")[1];
-  
+
   if (!token) {
-    return c.json({ 
-      success: false, 
-      error: "No token provided" 
+    return c.json({
+      success: false,
+      error: "No token provided"
     }, 401);
   }
 
@@ -35,15 +37,15 @@ const authMiddleware = async (c: any, next: any) => {
       c.set('userId', user.id);
       await next();
     } else {
-      return c.json({ 
-        success: false, 
-        error: "Invalid token" 
+      return c.json({
+        success: false,
+        error: "Invalid token"
       }, 401);
     }
   } catch (e: any) {
-    return c.json({ 
-      success: false, 
-      error: "Authentication failed" 
+    return c.json({
+      success: false,
+      error: "Authentication failed"
     }, 401);
   }
 };
@@ -67,8 +69,6 @@ uploadRouter.post("/image", authMiddleware, async (c) => {
         error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed."
       }, 400);
     }
-
-    // Validate file size
     if (file.size > S3_CONFIG.MAX_FILE_SIZE) {
       return c.json({
         success: false,
@@ -79,7 +79,8 @@ uploadRouter.post("/image", authMiddleware, async (c) => {
     const s3Client = createS3Client(
       c.env.AWS_ACCESS_KEY_ID,
       c.env.AWS_SECRET_ACCESS_KEY,
-      c.env.AWS_REGION || S3_CONFIG.REGION
+      c.env.AWS_REGION || S3_CONFIG.REGION,
+      c.env.AWS_ENDPOINT
     ) as S3Client;
 
     const timestamp = Date.now();
@@ -95,15 +96,13 @@ uploadRouter.post("/image", authMiddleware, async (c) => {
       Body: new Uint8Array(buffer),
       ContentType: file.type,
       ContentDisposition: 'inline',
-      CacheControl: 'max-age=31536000', 
+      CacheControl: 'max-age=31536000',
     });
 
     await s3Client.send(uploadCommand);
 
     const bucketName = c.env.AWS_BUCKET_NAME || S3_CONFIG.BUCKET_NAME;
-    const region = c.env.AWS_REGION || S3_CONFIG.REGION;
-    
-    const publicUrl = `https://s3.${region}.amazonaws.com/${bucketName}/${fileName}`;
+    const publicUrl = `${c.env.R2_PUBLIC_URL}/${fileName}`;
 
     return c.json({
       success: true,
@@ -149,7 +148,8 @@ uploadRouter.delete("/image", authMiddleware, async (c) => {
     const s3Client = createS3Client(
       c.env.AWS_ACCESS_KEY_ID,
       c.env.AWS_SECRET_ACCESS_KEY,
-      c.env.AWS_REGION || S3_CONFIG.REGION
+      c.env.AWS_REGION || S3_CONFIG.REGION,
+      c.env.AWS_ENDPOINT
     ) as S3Client;
 
     // Delete from S3

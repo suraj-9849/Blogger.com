@@ -66,18 +66,24 @@ userRouter.post('/signup', async (c) => {
             }, 400);
         }
 
-        const { name, username, password } = validation.data;
+        const { name, username, email, password } = validation.data;
 
         const prisma = createPrismaClient(c.env.DATABASE_URL);
 
-        const existingUser = await prisma.user.findUnique({
-            where: { username }
+        // Check if user exists with username or email
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { username },
+                    { email: email || `${username}@blogger.com` }
+                ]
+            }
         });
 
         if (existingUser) {
             return c.json({ 
                 success: false, 
-                error: "User already exists with this username" 
+                error: "User already exists with this username or email" 
             }, 409);
         }
 
@@ -87,7 +93,7 @@ userRouter.post('/signup', async (c) => {
           data: {
                 name,
                 username,
-                email: `${username}@blogger.com`,
+                email: email || `${username}@blogger.com`,
                 password: hashedPassword
             },
             select: {
@@ -126,22 +132,27 @@ userRouter.post('/signup', async (c) => {
     try {
       const body = await c.req.json();
         
-        // Manual validation for username-based signin
-        if (!body.username || !body.password) {
+        // Support both email and username for signin
+        if (!body.email || !body.password) {
             return c.json({ 
                 success: false, 
-                error: "Username and password are required" 
+                error: "Email and password are required" 
             }, 400);
         }
 
-        const { username, password } = body;
+        const { email, password } = body;
 
         // Create Prisma client with environment variable
         const prisma = createPrismaClient(c.env.DATABASE_URL);
 
-        // Find user
-        const user = await prisma.user.findUnique({
-            where: { username },
+        // Find user by email or username
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email },
+                    { username: email } // Allow login with username in email field
+                ]
+            },
             select: {
                 id: true,
                 name: true,
