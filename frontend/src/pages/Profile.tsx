@@ -60,7 +60,7 @@ interface BlogPost {
   }[];
 }
 
-export function Profile(_: ProfileProps) {
+export default function Profile(_: ProfileProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
