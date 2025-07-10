@@ -43,7 +43,7 @@ interface BlogProps {
   } | null;
 }
 
-function Blog({ isAuthenticated, user }: BlogProps) {
+function Blog({ isAuthenticated }: BlogProps) {
   const { id } = useParams();
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [loading, setLoading] = useState(true);

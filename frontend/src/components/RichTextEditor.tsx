@@ -151,7 +151,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         
         return false;
       },
-      handleDrop: (view, event, slice, moved) => {
+      handleDrop: (_view, event, _slice, moved) => {
         if (!moved && event.dataTransfer?.files.length) {
           const file = event.dataTransfer.files[0];
           if (file.type.startsWith('image/') && onImageUpload) {

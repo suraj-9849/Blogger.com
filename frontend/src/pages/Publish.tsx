@@ -436,34 +436,7 @@ function Publish(_: PublishProps) {
                   });
                 }}
                 placeholder="Tell your story..."
-                onImageUpload={async (file) => {
-                  // Use existing image upload logic
-                  const token = localStorage.getItem("token");
-                  if (!token) throw new Error("Authentication required");
-
-                  const formData = new FormData();
-                  formData.append('image', file);
-
-                  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/upload/image`, {
-                    method: 'POST',
-                    headers: {
-                      'Authorization': `Bearer ${token}`,
-                    },
-                    body: formData,
-                  });
-
-                  if (response.ok) {
-                    const json = await response.json();
-                    if (json.success && json.data && json.data.url) {
-                      return json.data.url;
-                    } else {
-                      throw new Error("Failed to get image URL after upload");
-                    }
-                  } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Failed to upload image");
-                  }
-                }}
+                onImageUpload={handleImageUpload}
               />
             )}
           </div>
