@@ -6,7 +6,6 @@ npm-debug.log
 .git
 .gitignore
 README.md
-Dockerfile
 .dockerignore
 coverage
 .nyc_output
