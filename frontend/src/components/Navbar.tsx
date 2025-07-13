@@ -22,7 +22,7 @@ export const Navbar = () => {
               to="/" 
               className="text-2xl font-bold text-black hover:text-gray-700 transition-colors"
             >
-              Blogger.com
+              BlogSpace
             </Link>
           </div>
 
